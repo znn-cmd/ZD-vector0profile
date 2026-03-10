@@ -40,6 +40,13 @@ export function QuestionBlock({
   const totalQuestions = config.questions.length;
   const answeredCount = Object.keys(answers).length;
   const allAnswered = answeredCount === totalQuestions;
+  const isLastQuestion = currentIdx === totalQuestions - 1;
+  const currentAnswer = answers[question?.id];
+  const currentQuestionComplete =
+    question?.type === "disc_pair"
+      ? currentAnswer?.type === "pair" && currentAnswer.most && currentAnswer.least
+      : !!currentAnswer;
+  const showCompleteButton = allAnswered || (isLastQuestion && currentQuestionComplete);
 
   // Simple per-block timer: shows elapsed and approximate remaining time
   useEffect(() => {
@@ -58,12 +65,6 @@ export function QuestionBlock({
       setCurrentIdx((i) => i + 1);
     }
   }, [currentIdx, totalQuestions]);
-
-  const goPrev = useCallback(() => {
-    if (currentIdx > 0) {
-      setCurrentIdx((i) => i - 1);
-    }
-  }, [currentIdx]);
 
   if (!question) return null;
 
@@ -137,19 +138,15 @@ export function QuestionBlock({
 
       {/* Navigation */}
       <div className="mt-8 flex items-center justify-between">
-        <Button
-          variant="outline"
-          onClick={goPrev}
-          disabled={currentIdx === 0}
-        >
-          {resolve(dict as unknown as Record<string, unknown>, "common.back")}
-        </Button>
+        <div className="w-14" />
 
         <div className="flex items-center gap-2 overflow-x-auto px-2">
           {config.questions.map((q, i) => (
             <button
               key={q.id}
-              onClick={() => setCurrentIdx(i)}
+              onClick={() => {
+                if (i >= currentIdx) setCurrentIdx(i);
+              }}
               className={cn(
                 "h-2 w-2 rounded-full transition-all",
                 i === currentIdx
@@ -163,9 +160,9 @@ export function QuestionBlock({
           ))}
         </div>
 
-        {allAnswered ? (
+        {showCompleteButton ? (
           <Button onClick={onComplete}>
-            {resolve(dict as unknown as Record<string, unknown>, "common.submit")}
+            {resolve(dict as unknown as Record<string, unknown>, "assessment.blockTransition.finishSection")}
           </Button>
         ) : (
           <Button

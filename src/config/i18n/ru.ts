@@ -143,7 +143,10 @@ export const ru = {
       completed: "Вы завершили: {blockName}",
       nextBlock: "Следующий раздел: {blockName}",
       estimatedTime: "Примерное время: ~{minutes} минут",
+      breakMessage: "Можете сделать паузу и вернуться к тесту позже по той же ссылке.",
       continueButton: "Перейти к следующему разделу",
+      startTestButton: "Начать тест",
+      finishSection: "Завершить раздел",
     },
 
     leave: {

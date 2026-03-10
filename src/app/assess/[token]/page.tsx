@@ -344,6 +344,9 @@ export default function AssessPage() {
               blockName: blockLabels[currentBlock],
             })}
           </p>
+          <p className="mb-4 text-sm text-gray-500">
+            {r("assessment.blockTransition.breakMessage")}
+          </p>
           {nextConfig && (
             <>
               <p className="mb-2 text-sm text-gray-500">
@@ -359,7 +362,7 @@ export default function AssessPage() {
             </>
           )}
           <Button size="lg" onClick={startNextBlock}>
-            {r("assessment.blockTransition.continueButton")}
+            {r("assessment.blockTransition.startTestButton")}
           </Button>
         </div>
       </div>

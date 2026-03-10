@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 
 interface DropdownProps {
@@ -12,32 +13,68 @@ interface DropdownProps {
 
 export function Dropdown({ trigger, children, align = "right", className }: DropdownProps) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open || !triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    const menuWidth = 180;
+    const menuHeight = 220;
+    const padding = 4;
+    const left = Math.max(
+      8,
+      Math.min(
+        align === "right" ? rect.right - menuWidth : rect.left,
+        window.innerWidth - menuWidth - 8
+      )
+    );
+    const spaceBelow = window.innerHeight - rect.bottom - padding;
+    const openUpward = spaceBelow < menuHeight && rect.top > spaceBelow;
+    const top = openUpward ? rect.top - menuHeight - padding : rect.bottom + padding;
+    setPosition({ top, left });
+  }, [open, align]);
 
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (
+        triggerRef.current?.contains(target) ||
+        menuRef.current?.contains(target)
+      )
+        return;
+      setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
   return (
-    <div ref={ref} className={cn("relative", className)}>
-      <div onClick={() => setOpen(!open)}>{trigger}</div>
-      {open && (
-        <div
-          className={cn(
-            "absolute top-full z-40 mt-1 min-w-[180px] animate-fade-in rounded-lg border border-gray-200 bg-white py-1 shadow-lg",
-            align === "right" ? "right-0" : "left-0",
-          )}
-          onClick={() => setOpen(false)}
-        >
-          {children}
-        </div>
-      )}
-    </div>
+    <>
+      <div
+        ref={triggerRef}
+        className={cn("relative inline-block", className)}
+        onClick={() => setOpen(!open)}
+      >
+        {trigger}
+      </div>
+      {open &&
+        typeof document !== "undefined" &&
+        position &&
+        createPortal(
+          <div
+            ref={menuRef}
+            className="fixed z-[100] min-w-[180px] animate-fade-in rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+            style={{ top: position.top, left: position.left }}
+            onClick={() => setOpen(false)}
+          >
+            {children}
+          </div>,
+          document.body
+        )}
+    </>
   );
 }
 
