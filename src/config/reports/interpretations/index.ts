@@ -1,0 +1,63 @@
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  Interpretation Dictionaries — Barrel Export
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export type * from "./types";
+
+// EN
+export {
+  D_INTERPRETATIONS,
+  I_INTERPRETATIONS,
+  S_INTERPRETATIONS,
+  C_INTERPRETATIONS,
+  K_INTERPRETATIONS,
+  SJT_INTERPRETATIONS,
+  VALIDITY_INTERPRETATIONS,
+  CONSISTENCY_INTERPRETATIONS,
+} from "./disc.en";
+
+export {
+  RITCHIE_SCALE_DICT,
+  RITCHIE_ROLE_INTERPRETATIONS,
+} from "./ritchie.en";
+
+export {
+  ZIMA_ENVIRONMENT_FIT,
+  ZIMA_ROLE_MISMATCH_WARNINGS,
+  ZIMA_MANAGEMENT_RECOMMENDATIONS,
+  ZIMA_RAMPUP_RECOMMENDATIONS,
+} from "./zima.en";
+
+export {
+  FINAL_BAND_TEMPLATES,
+  NARRATIVE_TEMPLATES,
+} from "./finalSummary.en";
+
+// RU
+export {
+  D_INTERPRETATIONS_RU,
+  I_INTERPRETATIONS_RU,
+  S_INTERPRETATIONS_RU,
+  C_INTERPRETATIONS_RU,
+  K_INTERPRETATIONS_RU,
+  SJT_INTERPRETATIONS_RU,
+  VALIDITY_INTERPRETATIONS_RU,
+  CONSISTENCY_INTERPRETATIONS_RU,
+} from "./disc.ru";
+
+export {
+  RITCHIE_SCALE_DICT_RU,
+  RITCHIE_ROLE_INTERPRETATIONS_RU,
+} from "./ritchie.ru";
+
+export {
+  ZIMA_ENVIRONMENT_FIT_RU,
+  ZIMA_ROLE_MISMATCH_WARNINGS_RU,
+  ZIMA_MANAGEMENT_RECOMMENDATIONS_RU,
+  ZIMA_RAMPUP_RECOMMENDATIONS_RU,
+} from "./zima.ru";
+
+export {
+  FINAL_BAND_TEMPLATES_RU,
+  NARRATIVE_TEMPLATES_RU,
+} from "./finalSummary.ru";
