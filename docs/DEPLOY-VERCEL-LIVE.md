@@ -82,6 +82,9 @@
 | `GOOGLE_PRIVATE_KEY` | ключ в кавычках | См. ниже |
 | `GOOGLE_SPREADSHEET_ID` | ID из URL таблицы | Длинная строка букв/цифр |
 | `GOOGLE_DRIVE_FOLDER_ID` | ID из URL папки Drive | Длинная строка букв/цифр |
+| `AUTH_SECRET` | Случайная строка (например из `openssl rand -hex 32`) | Для подписи сессии входа; в dev можно не задавать |
+
+**Вход в систему:** админ — логин `admin`, пароль `zdznn1003!`. HR — учётные записи из листа **HR_Users** в Google Таблице (email + пароль из колонки `password`). После bootstrap добавь колонку `password` в HR_Users, если её ещё нет, и задай пароли пользователям.
 
 **Как вставить GOOGLE_PRIVATE_KEY в Vercel**
 

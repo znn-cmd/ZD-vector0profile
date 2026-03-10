@@ -41,6 +41,8 @@ export interface NotificationRepository {
 export interface HRRepository {
   list(): Promise<HRUser[]>;
   getById(id: string): Promise<HRUser | null>;
+  /** Returns user with password for server-side auth only. */
+  getByEmail(email: string): Promise<(HRUser & { password?: string }) | null>;
   create(data: Omit<HRUser, "id">): Promise<HRUser>;
 }
 

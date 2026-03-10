@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Users, Settings, Eye, BarChart3,
   ChevronLeft, ChevronRight, Bell, UserCog, FileText,
-  Shield, GitCompare,
+  Shield, GitCompare, LogOut,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -18,10 +18,12 @@ interface NavItem {
   icon: typeof LayoutDashboard;
   roles: UserRole[];
   badge?: number;
+  /** If true, active only when pathname exactly equals href (not for child routes). */
+  exact?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "hr"] },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "hr"], exact: true },
   { href: "/dashboard/candidates", label: "Candidates", icon: Users, roles: ["admin", "hr"] },
   { href: "/dashboard/compare", label: "Compare", icon: GitCompare, roles: ["admin", "hr"] },
   { href: "/dashboard/reports", label: "Reports", icon: FileText, roles: ["admin", "hr"] },
@@ -39,7 +41,14 @@ interface SidebarProps {
 
 export function Sidebar({ role = "admin", userName = "Admin" }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.replace("/");
+    router.refresh();
+  };
 
   const visibleItems = navItems.filter((item) => item.roles.includes(role));
 
@@ -74,7 +83,9 @@ export function Sidebar({ role = "admin", userName = "Admin" }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-3">
         {visibleItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive = item.exact
+            ? pathname === item.href
+            : pathname === item.href || pathname.startsWith(item.href + "/");
 
           return (
             <Link
@@ -121,6 +132,13 @@ export function Sidebar({ role = "admin", userName = "Admin" }: SidebarProps) {
             </div>
           </div>
         )}
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700"
+        >
+          <LogOut className="h-4 w-4" />
+          {!collapsed && <span>Log out</span>}
+        </button>
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600"

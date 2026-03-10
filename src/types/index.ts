@@ -172,6 +172,8 @@ export interface HRUser {
   id: string;
   name: string;
   email: string;
+  /** Only present when loading for auth; never expose in list/dashboard. */
+  password?: string;
   telegramChatId?: string;
   role: "hr" | "admin";
 }

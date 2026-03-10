@@ -380,15 +380,15 @@ const sheetsHRRepo: HRRepository = {
     const sheets = getSheets();
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID!,
-      range: `${SHEET_NAMES.hr}!A2:E`,
+      range: `${SHEET_NAMES.hr}!A2:F`,
     });
     return (res.data.values ?? []).map(
       (r): HRUser => ({
         id: r[0],
         name: r[1],
         email: r[2],
-        telegramChatId: r[3] || undefined,
-        role: r[4] as HRUser["role"],
+        telegramChatId: (r[4] as string) || undefined,
+        role: (r[5] ?? r[4]) as HRUser["role"],
       })
     );
   },
@@ -398,16 +398,36 @@ const sheetsHRRepo: HRRepository = {
     return all.find((h) => h.id === id) ?? null;
   },
 
+  async getByEmail(email) {
+    const sheets = getSheets();
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID!,
+      range: `${SHEET_NAMES.hr}!A2:F`,
+    });
+    const rows = res.data.values ?? [];
+    const normalized = email.trim().toLowerCase();
+    const row = rows.find((r) => (r[2] as string)?.toLowerCase() === normalized);
+    if (!row) return null;
+    return {
+      id: row[0] as string,
+      name: row[1] as string,
+      email: row[2] as string,
+      password: (row[3] as string) || undefined,
+      telegramChatId: (row[4] as string) || undefined,
+      role: (row[5] ?? row[4]) as HRUser["role"],
+    };
+  },
+
   async create(data) {
     const sheets = getSheets();
     const user: HRUser = { ...data, id: genId("hr", 6) };
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID!,
-      range: `${SHEET_NAMES.hr}!A2:E`,
+      range: `${SHEET_NAMES.hr}!A2:F`,
       valueInputOption: "RAW",
       requestBody: {
         values: [
-          [user.id, user.name, user.email, user.telegramChatId ?? "", user.role],
+          [user.id, user.name, user.email, user.password ?? "", user.telegramChatId ?? "", user.role],
         ],
       },
     });

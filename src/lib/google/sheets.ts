@@ -44,7 +44,7 @@ export const SHEET_HEADERS: Record<string, string[]> = {
     "read",
     "createdAt",
   ],
-  [SHEET_NAMES.hr]: ["id", "name", "email", "telegramChatId", "role"],
+  [SHEET_NAMES.hr]: ["id", "name", "email", "password", "telegramChatId", "role"],
 };
 
 export function getSheets(): sheets_v4.Sheets {

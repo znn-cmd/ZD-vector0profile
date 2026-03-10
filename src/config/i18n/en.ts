@@ -82,6 +82,7 @@ export const en = {
 
     progress: {
       block: "Section {current} of {total}",
+      questionOf: "Question {current} of {total}",
       questionsCompleted: "{answered} of {total} answered",
       timeRemaining: "~{minutes} min remaining",
       autoSaved: "Progress saved",
@@ -152,6 +153,34 @@ export const en = {
       stay: "Stay",
       leave: "Leave",
     },
+  },
+
+  disc: {
+    q1: { a: "quickly take the lead in new situations", b: "easily start conversations and build rapport", c: "prefer to act calmly without rush", d: "like when things are structured and by the book" },
+    q2: { a: "readily take responsibility for results", b: "enjoy presenting and talking to people", c: "value a steady, predictable work rhythm", d: "pay close attention to details and procedures" },
+    q3: { a: "am ready to make tough decisions quickly", b: "energise others with enthusiasm", c: "try to keep the atmosphere calm", d: "prefer to analyse facts before acting" },
+    q4: { a: "see the goal and move towards it despite resistance", b: "quickly build trust with new people", c: "tend to avoid open conflict", d: "prefer to understand the instructions first" },
+    q5: { a: "feel comfortable in a competitive environment", b: "often bring lightness and humour", c: "am fine with repeating the same actions", d: "like things to be planned in advance" },
+    q6: { a: "would rather take a risk than wait", b: "prefer working with people over numbers", c: "rarely change established habits", d: "notice inaccuracies others miss" },
+    q7: { a: "easily argue when I disagree", b: "build rapport even with difficult clients", c: "focus on supporting others rather than pushing", d: "like clear rules and quality standards" },
+    q8: { a: "push the team forward when it stalls", b: "enjoy being in the centre of lively communication", c: "prefer to avoid sudden changes", d: "aim for accurate, error-free output" },
+    q9: { a: "do not fear unpopular decisions", b: "rely on people's emotions and dynamics", c: "keep patience in long processes", d: "double-check data before acting" },
+    q10: { a: "like high pace and pressure", b: "gain energy from meetings and calls", c: "am comfortable with routine tasks", d: "enjoy work that is neat and precise" },
+    q11: { a: "try to move quickly to action", b: "easily inspire others with ideas", c: "often play the peacemaker", d: "follow rules even when no one checks" },
+    q12: { a: "am ready to push hard for a result", b: "keep emotional energy high in the team", c: "seldom show tension outwardly", d: "prefer exact figures over vague wording" },
+    q13: { a: "set direction and move ahead", b: "like persuading clients through stories", c: "handle repetitive work calmly", d: "enjoy organising information" },
+    q14: { a: "feel comfortable in tough negotiations", b: "create a friendly atmosphere easily", c: "value schedule stability and predictability", d: "pay attention to formal requirements" },
+    q15: { a: "do not mind going against the majority", b: "quickly connect with people over the phone", c: "tend to listen more than talk", d: "prefer clearly documented processes" },
+    q16: { a: "can decide even with incomplete data", b: "enjoy lively idea exchange", c: "maintain a steady tempo without spikes", d: "spot inconsistencies and ask questions" },
+    q17: { a: "take ownership of complex cases", b: "blend into new teams fast", c: "prefer to build trusting relationships", d: "like step-by-step process descriptions" },
+    q18: { a: "feel fine with hard-driving, result-oriented deals", b: "often become the social centre of the group", c: "rarely make snap decisions", d: "prepare thoroughly before key meetings" },
+    q19: { a: "am ready to take charge of the situation", b: "adapt my style to each client quickly", c: "avoid rocking the boat without need", d: "prefer careful work over fast work" },
+    q20: { a: "like tasks that need drive and pressure", b: "enjoy networking and events", c: "maintain long-term client relationships", d: "care about deadlines and formal terms" },
+    q21: { a: "lead hesitant clients towards a decision", b: "sell mainly through trust and emotions", c: "deliver steady, predictable service", d: "keep contract details and risks in focus" },
+    q22: { a: "close deals quickly when I see an opening", b: "sell through conversation and storytelling", c: "can guide clients through a long cycle", d: "ensure everything is documented correctly" },
+    q23: { a: "feel comfortable in a competitive broker environment", b: "charge clients with confidence and optimism", c: "maintain relationships after closing", d: "prepare meetings and documents in advance" },
+    q24: { a: "act as a driver in the sales team", b: "sell through personal contact and influence", c: "build long, trusting relationships", d: "keep CRM and paperwork in good order" },
+    prompt: "I am a person who...",
   },
 
   settings: {

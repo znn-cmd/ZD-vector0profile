@@ -180,11 +180,19 @@ const notificationRepo: NotificationRepository = {
 const hrRepo: HRRepository = {
   async list() {
     seedIfEmpty();
-    return Array.from(store.hr.values());
+    return Array.from(store.hr.values()).map(({ password: _, ...u }) => ({ ...u }));
   },
   async getById(id) {
     seedIfEmpty();
-    return store.hr.get(id) ?? null;
+    const u = store.hr.get(id);
+    return u ? { ...u, password: undefined } : null;
+  },
+  async getByEmail(email) {
+    seedIfEmpty();
+    const normalized = email.trim().toLowerCase();
+    const u = Array.from(store.hr.values()).find((h) => h.email.toLowerCase() === normalized);
+    if (!u) return null;
+    return { ...u, password: u.password ?? "hr" };
   },
   async create(data) {
     const id = genId("hr", 6);

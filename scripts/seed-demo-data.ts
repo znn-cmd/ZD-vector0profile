@@ -36,7 +36,7 @@ const SHEET_NAMES = {
 } as const;
 
 function hrToRow(u: (typeof DEMO_HR_USERS)[0]) {
-  return [u.id, u.name, u.email, u.telegramChatId ?? "", u.role];
+  return [u.id, u.name, u.email, u.password ?? "", u.telegramChatId ?? "", u.role];
 }
 
 function candidateToRow(c: ReturnType<typeof buildDemoCandidates>[0]) {
@@ -113,7 +113,7 @@ async function main() {
   const hrRows = DEMO_HR_USERS.map(hrToRow);
   await sheets.spreadsheets.values.append({
     spreadsheetId,
-    range: `${SHEET_NAMES.hr}!A2:E`,
+    range: `${SHEET_NAMES.hr}!A2:F`,
     valueInputOption: "RAW",
     requestBody: { values: hrRows },
   });

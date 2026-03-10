@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type {
   AssessmentBlockConfig,
   AssessmentQuestion,
@@ -10,7 +10,7 @@ import type {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { getDictionary, resolve } from "@/config/i18n";
+import { getDictionary, resolve, interpolate } from "@/config/i18n";
 
 interface QuestionBlockProps {
   config: AssessmentBlockConfig;
@@ -28,6 +28,7 @@ export function QuestionBlock({
   onComplete,
 }: QuestionBlockProps) {
   const dict = getDictionary(lang);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [currentIdx, setCurrentIdx] = useState(() => {
     const firstUnanswered = config.questions.findIndex(
       (q) => !answers[q.id]
@@ -39,6 +40,18 @@ export function QuestionBlock({
   const totalQuestions = config.questions.length;
   const answeredCount = Object.keys(answers).length;
   const allAnswered = answeredCount === totalQuestions;
+
+  // Simple per-block timer: shows elapsed and approximate remaining time
+  useEffect(() => {
+    const startedAt = Date.now();
+    const id = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [config.id]);
+
+  const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+  const remainingApprox = Math.max(config.estimatedMinutes - elapsedMinutes, 0);
 
   const goNext = useCallback(() => {
     if (currentIdx < totalQuestions - 1) {
@@ -58,11 +71,31 @@ export function QuestionBlock({
     <div className="mx-auto max-w-2xl animate-fade-in">
       {/* Progress bar */}
       <div className="mb-6">
-        <div className="mb-2 flex items-center justify-between text-xs text-gray-500">
+        <div className="mb-1 flex items-center justify-between text-xs text-gray-500">
           <span>
-            Question {currentIdx + 1} of {totalQuestions}
+            {interpolate(resolve(dict as unknown as Record<string, unknown>, "assessment.progress.questionOf"), {
+              current: String(currentIdx + 1),
+              total: String(totalQuestions),
+            })}
           </span>
-          <span>{answeredCount} answered</span>
+          <span>
+            {interpolate(resolve(dict as unknown as Record<string, unknown>, "assessment.progress.questionsCompleted"), {
+              answered: String(answeredCount),
+              total: String(totalQuestions),
+            })}
+          </span>
+        </div>
+        <div className="mb-1 flex items-center justify-between text-[11px] text-gray-400">
+          <span>
+            {lang === "ru"
+              ? `Прошло ~${elapsedMinutes} мин`
+              : `Elapsed ~${elapsedMinutes} min`}
+          </span>
+          <span>
+            {lang === "ru"
+              ? `Осталось ~${remainingApprox} мин`
+              : `Remaining ~${remainingApprox} min`}
+          </span>
         </div>
         <Progress value={answeredCount} max={totalQuestions} />
       </div>
@@ -73,6 +106,7 @@ export function QuestionBlock({
           question={question}
           answer={answers[question.id]}
           dict={dict}
+          lang={lang}
           onAnswer={(val) => {
             onAnswer(question.id, val);
             setTimeout(goNext, 300);
@@ -156,15 +190,25 @@ function DISCPairQuestion({
   question,
   answer,
   dict,
+  lang,
   onAnswer,
 }: {
   question: AssessmentQuestion;
   answer?: AnswerValue;
   dict: ReturnType<typeof getDictionary>;
+  lang: Lang;
   onAnswer: (val: AnswerValue) => void;
 }) {
-  const currentAnswer =
-    answer?.type === "pair" ? answer : { most: "", least: "" };
+  const [currentAnswer, setCurrentAnswer] = useState<{ most: string; least: string }>(() =>
+    answer?.type === "pair" ? { most: answer.most, least: answer.least } : { most: "", least: "" },
+  );
+
+  // Keep local UI state in sync when persisted answer changes (e.g. after reload)
+  useEffect(() => {
+    if (answer?.type === "pair") {
+      setCurrentAnswer({ most: answer.most, least: answer.least });
+    }
+  }, [answer]);
 
   const handleSelect = (optionId: string, role: "most" | "least") => {
     const updated = { ...currentAnswer };
@@ -175,6 +219,8 @@ function DISCPairQuestion({
       updated.least = optionId === updated.least ? "" : optionId;
       if (updated.least === updated.most) updated.most = "";
     }
+
+    setCurrentAnswer(updated);
 
     if (updated.most && updated.least) {
       onAnswer({ type: "pair", most: updated.most, least: updated.least });
@@ -227,7 +273,7 @@ function DISCPairQuestion({
                       : "border-gray-300 text-gray-400 hover:border-green-400 hover:text-green-600"
                   )}
                 >
-                  Most
+                  {lang === "ru" ? "Больше" : "Most"}
                 </button>
                 <button
                   onClick={() => handleSelect(opt.id, "least")}
@@ -238,7 +284,7 @@ function DISCPairQuestion({
                       : "border-gray-300 text-gray-400 hover:border-red-300 hover:text-red-500"
                   )}
                 >
-                  Least
+                  {lang === "ru" ? "Меньше" : "Least"}
                 </button>
               </div>
             </div>

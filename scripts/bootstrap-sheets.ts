@@ -71,8 +71,8 @@ const SHEET_DEFINITIONS = [
   },
   {
     name: "HR_Users",
-    headers: ["id", "name", "email", "telegramChatId", "role"],
-    widths: [100, 180, 200, 160, 80],
+    headers: ["id", "name", "email", "password", "telegramChatId", "role"],
+    widths: [100, 180, 200, 120, 160, 80],
   },
 ];
 

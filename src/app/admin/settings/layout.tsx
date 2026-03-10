@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { cn } from "@/lib/utils";
 import {
@@ -12,6 +13,8 @@ import {
   Languages,
   ClipboardList,
 } from "lucide-react";
+
+type AuthUser = { id: string; email: string; name: string; role: "admin" | "hr" };
 
 const settingsNav = [
   { href: "/admin/settings", label: "Overview", icon: Plug, exact: true },
@@ -37,10 +40,35 @@ export default function SettingsLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => (res.status === 401 ? null : res.json()))
+      .then((data) => {
+        if (data?.id) {
+          if (data.role !== "admin") router.replace("/dashboard");
+          else setUser(data);
+        } else router.replace("/");
+      })
+      .catch(() => router.replace("/"))
+      .finally(() => setLoading(false));
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zima-600 border-t-transparent" />
+      </div>
+    );
+  }
+  if (!user) return null;
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar role="admin" userName="Admin User" />
+      <Sidebar role={user.role} userName={user.name} />
       <div className="flex flex-1 overflow-hidden">
         {/* Settings sub-nav */}
         <nav className="w-56 shrink-0 overflow-y-auto border-r border-gray-200 bg-gray-50 p-4">

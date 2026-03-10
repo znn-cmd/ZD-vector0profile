@@ -241,7 +241,7 @@ function generateDISCQuestions(): AssessmentBlockConfig["questions"] {
   return groups.map((g) => ({
     id: g.id,
     type: "disc_pair" as const,
-    textKey: `disc.${g.id}.prompt`,
+    textKey: "disc.prompt",
     options: g.statements.map((s) => ({
       id: s.id,
       textKey: s.textKey,

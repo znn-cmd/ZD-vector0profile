@@ -11,6 +11,10 @@ export default function Home() {
   const [inviteCode, setInviteCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   const handleJoinAssessment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,18 +137,58 @@ export default function Home() {
             </div>
           </div>
 
-          {/* HR / Admin entry */}
+          {/* HR / Admin login */}
           <div>
             <h3 className="text-sm font-semibold text-gray-900">HR / Admin Access</h3>
-            <p className="mt-1 text-xs text-gray-500">Access the dashboard to manage assessments and candidates.</p>
-            <Button
-              variant="outline"
-              className="mt-3 w-full gap-2"
-              onClick={() => router.push("/dashboard")}
+            <p className="mt-1 text-xs text-gray-500">Admin: use login <strong>admin</strong> and the configured password. HR: use your work email and password from the system.</p>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setLoginError("");
+                setLoginLoading(true);
+                try {
+                  const res = await fetch("/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: loginEmail.trim(), password: loginPassword }),
+                  });
+                  const data = await res.json().catch(() => ({}));
+                  if (res.ok) {
+                    router.push("/dashboard");
+                    router.refresh();
+                  } else {
+                    setLoginError(data.error ?? "Invalid email or password");
+                  }
+                } catch {
+                  setLoginError("Something went wrong");
+                } finally {
+                  setLoginLoading(false);
+                }
+              }}
+              className="mt-3 space-y-3"
             >
-              <LogIn className="h-4 w-4" />
-              Go to Dashboard
-            </Button>
+              <Input
+                type="text"
+                autoComplete="username"
+                placeholder="Email or admin login"
+                value={loginEmail}
+                onChange={(e) => { setLoginEmail(e.target.value); setLoginError(""); }}
+              />
+              <Input
+                type="password"
+                autoComplete="current-password"
+                placeholder="Password"
+                value={loginPassword}
+                onChange={(e) => { setLoginPassword(e.target.value); setLoginError(""); }}
+              />
+              {loginError && (
+                <p className="text-xs text-red-600">{loginError}</p>
+              )}
+              <Button type="submit" className="w-full gap-2" disabled={loginLoading || !loginEmail.trim() || !loginPassword}>
+                {loginLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
+                Sign in
+              </Button>
+            </form>
           </div>
         </div>
       </div>
