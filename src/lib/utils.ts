@@ -36,7 +36,15 @@ export function timeAgo(iso: string): string {
   return formatDate(iso);
 }
 
+/**
+ * Build invite URL for candidate. In the browser uses current origin so the link
+ * always points to the site the user is on (e.g. https://zd-vector0profile.vercel.app).
+ * On the server falls back to NEXT_PUBLIC_BASE_URL or localhost.
+ */
 export function generateInviteUrl(token: string): string {
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+  const base =
+    (typeof window !== "undefined" && window.location?.origin) ||
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    "http://localhost:3000";
   return `${base}/assess/${token}`;
 }

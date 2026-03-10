@@ -15,7 +15,9 @@ import { google } from "googleapis";
 import * as dotenv from "dotenv";
 import * as path from "path";
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+const root = path.resolve(__dirname, "..");
+dotenv.config({ path: path.join(root, ".env") });
+dotenv.config({ path: path.join(root, ".env.local") });
 
 const SHEET_DEFINITIONS = [
   {
@@ -74,11 +76,24 @@ const SHEET_DEFINITIONS = [
   },
 ];
 
+/** Normalize private key from .env so OpenSSL can parse it (avoids DECODER routines::unsupported). */
+function normalizePrivateKey(raw: string | undefined): string {
+  if (!raw || typeof raw !== "string") return "";
+  let key = raw
+    .replace(/\\n/g, "\n")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .trim();
+  const q = key.match(/^["']?(-----BEGIN PRIVATE KEY-----[\s\S]+?-----END PRIVATE KEY-----)["']?$/);
+  if (q) key = q[1].trim();
+  return key;
+}
+
 async function main() {
   console.log("🚀 ZIMA Dubai — Google Sheets Bootstrap\n");
 
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const key = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const key = normalizePrivateKey(process.env.GOOGLE_PRIVATE_KEY);
   const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
 
   if (!email || !key || !spreadsheetId) {
@@ -88,6 +103,11 @@ async function main() {
         "   GOOGLE_PRIVATE_KEY\n" +
         "   GOOGLE_SPREADSHEET_ID"
     );
+    process.exit(1);
+  }
+
+  if (!key.includes("-----BEGIN PRIVATE KEY-----")) {
+    console.error("❌ GOOGLE_PRIVATE_KEY does not look like a PEM key. Check .env (use \\n for newlines, no extra quotes).");
     process.exit(1);
   }
 
