@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge, StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import {
   CheckCircle2, AlertTriangle, Target, Brain, Lightbulb,
   Shield, Zap, Users, TrendingUp,
 } from "lucide-react";
-import { formatDate, formatDateTime } from "@/lib/utils";
+import { formatDate, formatDateTime, generateInviteUrl } from "@/lib/utils";
 import type { Candidate, AssessmentSession } from "@/types";
 import type { WebSummaryCard } from "@/reports/types";
 
@@ -379,7 +380,20 @@ function InsightList({
 // ─── Info Tab ────────────────────────────────────────────────────────
 
 function InfoTab({ candidate, reportUrl }: { candidate: Candidate; reportUrl?: string | null }) {
-  const fields = [
+  const inviteLink = generateInviteUrl(candidate.inviteToken);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyInvite = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  const fields: { label: string; value: string }[] = [
     { label: "Full Name", value: candidate.fullName },
     { label: "Email", value: candidate.email },
     { label: "Phone", value: candidate.phone ?? "—" },
@@ -387,13 +401,24 @@ function InfoTab({ candidate, reportUrl }: { candidate: Candidate; reportUrl?: s
     { label: "Language", value: candidate.lang.toUpperCase() },
     { label: "Created", value: formatDateTime(candidate.createdAt) },
     { label: "Last Updated", value: formatDateTime(candidate.updatedAt) },
-    { label: "Invite Token", value: candidate.inviteToken },
     ...(reportUrl ? [{ label: "Report URL", value: reportUrl }] : []),
   ];
 
   return (
     <Card className="border-gray-100">
       <CardContent className="py-4">
+        <div className="mb-4 rounded-lg border border-zima-200 bg-zima-50/50 p-3">
+          <p className="mb-2 text-xs font-medium text-gray-600">Invite link (for candidate)</p>
+          <div className="flex items-center gap-2">
+            <span className="min-w-0 flex-1 truncate rounded border border-gray-200 bg-white px-2 py-1.5 text-xs text-gray-700">
+              {inviteLink}
+            </span>
+            <Button variant="outline" size="sm" className="shrink-0 gap-1.5" onClick={handleCopyInvite}>
+              <Copy className="h-3.5 w-3.5" />
+              {copied ? "Copied" : "Copy"}
+            </Button>
+          </div>
+        </div>
         <dl className="divide-y divide-gray-100">
           {fields.map((f) => (
             <div key={f.label} className="flex items-center justify-between py-2.5">
