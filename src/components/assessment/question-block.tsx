@@ -107,10 +107,7 @@ export function QuestionBlock({
           answer={answers[question.id]}
           dict={dict}
           lang={lang}
-          onAnswer={(val) => {
-            onAnswer(question.id, val);
-            setTimeout(goNext, 300);
-          }}
+          onAnswer={(val) => onAnswer(question.id, val)}
         />
       )}
 
