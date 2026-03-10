@@ -20,6 +20,9 @@ interface ReportEntry {
   driveUrl?: string;
 }
 
+// In mock mode we show demo reports; in live mode the list starts empty and will be populated by real data.
+const IS_MOCK = process.env.NEXT_PUBLIC_APP_MODE !== "live";
+
 const DEMO_REPORTS: ReportEntry[] = [
   { id: "rpt_1", candidateName: "Alexei Ivanov", version: "V1", status: "ready", generatedAt: "2026-03-10T10:00:00Z", templateVersion: "2026.03.1", driveUrl: "#" },
   { id: "rpt_2", candidateName: "Sarah Ahmed", version: "V1", status: "ready", generatedAt: "2026-03-09T14:30:00Z", templateVersion: "2026.03.1", driveUrl: "#" },
@@ -39,7 +42,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default function ReportsPage() {
-  const [reports] = useState<ReportEntry[]>(DEMO_REPORTS);
+  const [reports] = useState<ReportEntry[]>(IS_MOCK ? DEMO_REPORTS : []);
 
   return (
     <div className="min-h-full">

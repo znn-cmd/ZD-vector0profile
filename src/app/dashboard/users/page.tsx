@@ -14,6 +14,9 @@ import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/dropdow
 import { Plus, MoreHorizontal, Loader2, UserCog, Shield, Send } from "lucide-react";
 import type { HRUser } from "@/types";
 
+// In mock mode we show demo users; in live mode the table starts empty.
+const IS_MOCK = process.env.NEXT_PUBLIC_APP_MODE !== "live";
+
 const DEMO_USERS: HRUser[] = [
   { id: "hr_1", name: "Elena Sokolova", email: "elena@zimadubai.ae", role: "admin", telegramChatId: "123456" },
   { id: "hr_2", name: "Ahmed Al-Rashid", email: "ahmed@zimadubai.ae", role: "hr" },
@@ -21,7 +24,7 @@ const DEMO_USERS: HRUser[] = [
 ];
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<HRUser[]>(DEMO_USERS);
+  const [users, setUsers] = useState<HRUser[]>(IS_MOCK ? DEMO_USERS : []);
   const [showNew, setShowNew] = useState(false);
 
   return (
