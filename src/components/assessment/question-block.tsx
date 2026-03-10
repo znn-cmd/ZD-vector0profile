@@ -200,12 +200,14 @@ function DISCPairQuestion({
     answer?.type === "pair" ? { most: answer.most, least: answer.least } : { most: "", least: "" },
   );
 
-  // Keep local UI state in sync when persisted answer changes (e.g. after reload)
+  // Reset selection when question changes; restore when navigating back to an answered question
   useEffect(() => {
     if (answer?.type === "pair") {
       setCurrentAnswer({ most: answer.most, least: answer.least });
+    } else {
+      setCurrentAnswer({ most: "", least: "" });
     }
-  }, [answer]);
+  }, [question.id, answer]);
 
   const handleSelect = (optionId: string, role: "most" | "least") => {
     const updated = { ...currentAnswer };
