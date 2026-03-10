@@ -241,8 +241,8 @@ export const en = {
     error: "Error: {message}",
   },
 
-  // DISC question texts (sample set — first 6 groups fully defined, rest follow pattern)
-  disc: {
+  // Legacy flat DISC keys (unused)
+  _discLegacy: {
     disc_q1: { prompt: "I am a person who..." },
     "q1.a": "Takes charge and leads others",
     "q1.b": "Persuades and motivates people",
