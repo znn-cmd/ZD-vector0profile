@@ -1,4 +1,7 @@
+import { contentRU } from "./content.ru";
+
 export const ru = {
+  content: contentRU,
   common: {
     appName: "ZIMA Dubai — Векторный Профиль",
     loading: "Загрузка...",

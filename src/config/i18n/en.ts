@@ -1,4 +1,7 @@
+import { contentEN } from "./content.en";
+
 export const en = {
+  content: contentEN,
   common: {
     appName: "ZIMA Dubai Vector Profile",
     loading: "Loading...",

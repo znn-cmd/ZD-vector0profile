@@ -133,7 +133,6 @@ export function QuestionBlock({
           dict={dict}
           onAnswer={(val) => {
             onAnswer(question.id, val);
-            setTimeout(goNext, 300);
           }}
         />
       )}
@@ -155,7 +154,6 @@ export function QuestionBlock({
           dict={dict}
           onAnswer={(val) => {
             onAnswer(question.id, val);
-            setTimeout(goNext, 300);
           }}
         />
       )}
@@ -167,7 +165,6 @@ export function QuestionBlock({
           dict={dict}
           onAnswer={(val) => {
             onAnswer(question.id, val);
-            setTimeout(goNext, 300);
           }}
         />
       )}
@@ -596,7 +593,7 @@ function LikertScaleQuestion({
       <h3 className="mb-8 text-lg font-semibold text-gray-900">
         {questionText}
       </h3>
-      <div className="flex items-center justify-between gap-2">
+      <div className="grid grid-cols-6 gap-2">
         {question.options.map((opt) => {
           const isSelected = selected === opt.value;
           const label = resolve(
@@ -611,7 +608,7 @@ function LikertScaleQuestion({
                 onAnswer({ type: "scale", value: opt.value ?? 0 })
               }
               className={cn(
-                "flex flex-1 flex-col items-center gap-2 rounded-lg border p-3 transition-all",
+                "flex flex-col items-center gap-2 rounded-lg border p-3 transition-all min-h-[96px]",
                 isSelected
                   ? "border-zima-500 bg-zima-50"
                   : "border-gray-200 hover:border-gray-300"

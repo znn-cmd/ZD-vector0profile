@@ -21,14 +21,14 @@ export const discConfig: AssessmentBlockConfig = {
     ...DISC_FULL_CONFIG.items.map((it) => ({
       id: it.id,
       type: "likert_scale" as const,
-      textKey: it.text,
+      textKey: `content.disc.likert.${it.id}`,
       options: likert6Options(),
     })),
     ...DISC_FULL_CONFIG.sjtCases.map((c) => ({
       id: c.id,
       type: "ranking" as const,
-      textKey: c.scenario,
-      options: c.options.map((t, idx) => ({ id: String(idx), textKey: t })),
+      textKey: `content.disc.sjt.${c.id}.scenario`,
+      options: c.options.map((_, idx) => ({ id: String(idx), textKey: `content.disc.sjt.${c.id}.opt${idx}` })),
     })),
   ],
 };
@@ -42,7 +42,7 @@ export const zimaConfig: AssessmentBlockConfig = {
   questions: ZIMA_FULL_CONFIG.items.map((it) => ({
     id: it.id,
     type: "likert_scale" as const,
-    textKey: it.text,
+    textKey: `content.zima.${it.id}`,
     options: likert6Options(),
   })),
 };
@@ -57,29 +57,29 @@ export const ritchieConfig: AssessmentBlockConfig = {
     ...RITCHIE_FULL_CONFIG.items.map((it) => ({
       id: it.id,
       type: "likert_scale" as const,
-      textKey: it.text,
+      textKey: `content.ritchie.likert.${it.id}`,
       options: likert6Options(),
     })),
     ...RITCHIE_FULL_CONFIG.validityItems.map((vi) => ({
       id: vi.id,
       type: "likert_scale" as const,
-      textKey: vi.text,
+      textKey: `content.ritchie.validity.${vi.id}`,
       options: likert6Options(),
     })),
     ...RITCHIE_FULL_CONFIG.forcedChoiceBlocks.map((fc) => ({
       id: fc.id,
       type: "forced_choice" as const,
-      textKey: fc.prompt,
+      textKey: `content.ritchie.fc.${fc.id}.prompt`,
       options: [
-        { id: "a", textKey: fc.optionA.text },
-        { id: "b", textKey: fc.optionB.text },
+        { id: "a", textKey: `content.ritchie.fc.${fc.id}.a` },
+        { id: "b", textKey: `content.ritchie.fc.${fc.id}.b` },
       ],
     })),
     ...RITCHIE_FULL_CONFIG.miniCases.map((mc) => ({
       id: mc.id,
       type: "mini_case" as const,
-      textKey: mc.scenario,
-      options: mc.options.map((o) => ({ id: o.id, textKey: o.text })),
+      textKey: `content.ritchie.mc.${mc.id}.scenario`,
+      options: mc.options.map((o) => ({ id: o.id, textKey: `content.ritchie.mc.${mc.id}.${o.id}` })),
     })),
   ],
 };
