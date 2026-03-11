@@ -231,7 +231,9 @@ const sheetsResultsRepo: ResultsRepository = {
         range: `${SHEET_NAMES.results}!A2:C`,
       });
       const rows = res.data.values ?? [];
-      const row = rows.find((r) => r[0] === candidateId);
+      // Return the latest row for this candidate (last match) so re-completed assessments overwrite
+      const matches = rows.filter((r) => r[0] === candidateId);
+      const row = matches.length > 0 ? matches[matches.length - 1] : null;
       if (!row) return null;
       return JSON.parse(row[2]) as AssessmentResults;
     } catch (err) {
@@ -271,7 +273,8 @@ const sheetsResultsRepo: ResultsRepository = {
         range: `${SHEET_NAMES.results}!A2:C`,
       });
       const rows = res.data.values ?? [];
-      const idx = rows.findIndex((r) => r[0] === candidateId);
+      // Update the latest row for this candidate (last match)
+      const idx = rows.map((r) => r[0]).lastIndexOf(candidateId);
       if (idx === -1) return null;
       const existing = JSON.parse(rows[idx][2]) as AssessmentResults;
       const updated = { ...existing, ...data };

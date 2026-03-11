@@ -84,9 +84,10 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { candidateId, blockId } = body as {
+    const { candidateId, blockId, answers: bodyAnswers } = body as {
       candidateId: string;
       blockId: AssessmentBlockId;
+      answers?: Record<string, AnswerValue>;
     };
 
     if (!candidateId || !blockId) return jsonError("Missing candidateId or blockId");
@@ -95,6 +96,15 @@ export async function PUT(request: NextRequest) {
     const session = await repo.sessions.getByCandidate(candidateId);
     if (!session) return jsonError("Session not found", 404);
     if (session.completedAt) return jsonError("Session already completed", 409);
+
+    // Merge latest answers from request so scoring never uses stale progress
+    if (bodyAnswers && typeof bodyAnswers === "object" && Object.keys(bodyAnswers).length > 0) {
+      const blockProgress = session.progress[blockId] ?? { status: "not_started" as const, answers: {} };
+      session.progress[blockId] = {
+        ...blockProgress,
+        answers: { ...blockProgress.answers, ...bodyAnswers },
+      };
+    }
 
     // Mark the block complete
     session.progress[blockId] = {
@@ -110,7 +120,12 @@ export async function PUT(request: NextRequest) {
       let results = null;
       try {
         results = computeFullResults(session);
-        await repo.results.save(results);
+        const existing = await repo.results.getByCandidate(candidateId);
+        if (existing) {
+          await repo.results.update(candidateId, results);
+        } else {
+          await repo.results.save(results);
+        }
       } catch (scoreErr) {
         console.error("[Scoring Error]", scoreErr);
         // Still mark session complete even if scoring fails

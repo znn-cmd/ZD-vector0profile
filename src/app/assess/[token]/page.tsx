@@ -155,20 +155,23 @@ export default function AssessPage() {
     // Save final answers first
     await saveProgress(answersRef.current);
 
-    // Mark block complete on server
+    // Mark block complete on server (send current block answers so scoring uses latest data)
     const res = await fetch("/api/progress", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         candidateId: candidate.id,
         blockId: currentBlock,
+        answers: answersRef.current,
       }),
     });
 
     const data = await res.json();
     setSession(data.session);
 
-    if (data.complete) {
+    // Ritchie–Martin is the last block: no "next test" — show final completion
+    const isLastBlock = currentBlock === defaultBlockOrder[defaultBlockOrder.length - 1];
+    if (data.complete || isLastBlock) {
       setPhase("completed");
     } else {
       setPhase("transition");
@@ -335,8 +338,19 @@ export default function AssessPage() {
 
   if (phase === "transition") {
     const idx = defaultBlockOrder.indexOf(currentBlock);
-    const nextBlockId = defaultBlockOrder[idx + 1];
-    const nextConfig = nextBlockId ? assessmentConfigs[nextBlockId] : null;
+    const nextBlockId = defaultBlockOrder[idx + 1] ?? null;
+
+    // После последнего блока (Ritchie–Martin) следующего теста нет — показываем итоговый экран
+    if (!nextBlockId) {
+      return (
+        <CompletionScreen
+          candidateName={candidate?.fullName ?? ""}
+          lang={lang}
+        />
+      );
+    }
+
+    const nextConfig = assessmentConfigs[nextBlockId];
 
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 to-white p-6">
@@ -359,7 +373,7 @@ export default function AssessPage() {
             <>
               <p className="mb-2 text-sm text-gray-500">
                 {interpolate(r("assessment.blockTransition.nextBlock"), {
-                  blockName: blockLabels[nextBlockId!],
+                  blockName: blockLabels[nextBlockId],
                 })}
               </p>
               <p className="mb-6 text-xs text-gray-400">
