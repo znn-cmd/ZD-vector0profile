@@ -34,6 +34,7 @@ export default function AssessPage() {
   const [lang, setLang] = useState<Lang>("en");
   const [currentBlock, setCurrentBlock] = useState<AssessmentBlockId>("disc");
   const [answers, setAnswers] = useState<Record<string, AnswerValue>>({});
+  const answersRef = useRef<Record<string, AnswerValue>>({});
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const pendingSave = useRef(false);
@@ -78,12 +79,13 @@ export default function AssessPage() {
   }, [token]);
 
   // ─── Autosave mechanism ──────────────────────────────────────────
-  const saveProgress = useCallback(async () => {
+  const saveProgress = useCallback(async (overrideAnswers?: Record<string, AnswerValue>) => {
     if (!candidate || pendingSave.current) return;
 
-    const answersJson = JSON.stringify(answers);
+    const snapshot = overrideAnswers ?? answersRef.current ?? answers;
+    const answersJson = JSON.stringify(snapshot);
     if (answersJson === lastSavedAnswers.current) return;
-    if (Object.keys(answers).length === 0) return;
+    if (Object.keys(snapshot).length === 0) return;
 
     pendingSave.current = true;
     setSaveStatus("saving");
@@ -95,7 +97,7 @@ export default function AssessPage() {
         body: JSON.stringify({
           candidateId: candidate.id,
           blockId: currentBlock,
-          answers,
+          answers: snapshot,
         }),
       });
 
@@ -124,9 +126,13 @@ export default function AssessPage() {
   const answerTimeout = useRef<ReturnType<typeof setTimeout>>();
   const handleAnswer = useCallback(
     (questionId: string, answer: AnswerValue) => {
-      setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+      setAnswers((prev) => {
+        const next = { ...prev, [questionId]: answer };
+        answersRef.current = next;
+        return next;
+      });
       clearTimeout(answerTimeout.current);
-      answerTimeout.current = setTimeout(saveProgress, 3000);
+      answerTimeout.current = setTimeout(() => saveProgress(answersRef.current), 3000);
     },
     [saveProgress]
   );
@@ -147,7 +153,7 @@ export default function AssessPage() {
     if (!candidate) return;
 
     // Save final answers first
-    await saveProgress();
+    await saveProgress(answersRef.current);
 
     // Mark block complete on server
     const res = await fetch("/api/progress", {
@@ -176,8 +182,10 @@ export default function AssessPage() {
     const next = session.blockOrder[idx + 1];
     if (next) {
       setCurrentBlock(next);
-      setAnswers(session.progress[next]?.answers ?? {});
-      lastSavedAnswers.current = JSON.stringify(session.progress[next]?.answers ?? {});
+      const nextAnswers = session.progress[next]?.answers ?? {};
+      setAnswers(nextAnswers);
+      answersRef.current = nextAnswers;
+      lastSavedAnswers.current = JSON.stringify(nextAnswers);
       setPhase("assessment");
     }
   }, [session, currentBlock]);
@@ -186,10 +194,10 @@ export default function AssessPage() {
   const startAssessment = useCallback(() => {
     if (session) {
       setCurrentBlock(session.currentBlock);
-      setAnswers(session.progress[session.currentBlock]?.answers ?? {});
-      lastSavedAnswers.current = JSON.stringify(
-        session.progress[session.currentBlock]?.answers ?? {}
-      );
+      const initialAnswers = session.progress[session.currentBlock]?.answers ?? {};
+      setAnswers(initialAnswers);
+      answersRef.current = initialAnswers;
+      lastSavedAnswers.current = JSON.stringify(initialAnswers);
     }
     setPhase("assessment");
   }, [session]);

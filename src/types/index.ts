@@ -42,7 +42,7 @@ export interface AssessmentBlockConfig {
 
 export interface AssessmentQuestion {
   id: string;
-  type: "disc_pair" | "multiple_choice" | "likert_scale" | "ranking";
+  type: "disc_pair" | "multiple_choice" | "likert_scale" | "ranking" | "forced_choice" | "mini_case";
   textKey: string;
   options: QuestionOption[];
   /** For disc_pair: which dimension each option maps to */

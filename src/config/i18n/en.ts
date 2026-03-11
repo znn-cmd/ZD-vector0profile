@@ -89,10 +89,19 @@ export const en = {
       saving: "Saving...",
     },
 
+    likert6: {
+      1: "Strongly disagree",
+      2: "Disagree",
+      3: "Slightly disagree",
+      4: "Slightly agree",
+      5: "Agree",
+      6: "Strongly agree",
+    },
+
     disc: {
       title: "Behavioral Profile (DISC)",
       description:
-        "For each group of four statements, select the one that is MOST like you and the one that is LEAST like you.",
+        "First you will see statements about your typical behavior. Rate how true each is for you on a 1–6 agreement scale (1 = strongly disagree, 6 = strongly agree). Then you will see situational judgment cases — for each scenario, rank the response options from most to least effective.",
       instructionMost: "Most like me",
       instructionLeast: "Least like me",
     },
@@ -100,13 +109,13 @@ export const en = {
     zima: {
       title: "Cognitive Assessment (ZIMA)",
       description:
-        "Answer each question by selecting the best option. There is one correct answer for each question.",
+        "For each statement, rate how strongly you agree on a 1–6 scale. There are no “right” or “wrong” answers — the goal is to capture how you naturally work in different environments and roles.",
     },
 
     ritchie: {
       title: "Motivation Profile (Ritchie-Martin)",
       description:
-        "Rate each statement on a scale from 1 (Strongly Disagree) to 5 (Strongly Agree).",
+        "You will first rate motivation statements on a 1–6 agreement scale, then answer a few either–or dilemmas and short mini-cases by choosing the option that is closest to you.",
       scale: {
         "1": "Strongly Disagree",
         "2": "Disagree",

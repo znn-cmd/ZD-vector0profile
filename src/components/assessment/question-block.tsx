@@ -45,6 +45,8 @@ export function QuestionBlock({
   const currentQuestionComplete =
     question?.type === "disc_pair"
       ? currentAnswer?.type === "pair" && currentAnswer.most && currentAnswer.least
+      : question?.type === "ranking"
+      ? currentAnswer?.type === "ranking" && currentAnswer.order.length === (question.options?.length ?? 0)
       : !!currentAnswer;
   const showCompleteButton = allAnswered || (isLastQuestion && currentQuestionComplete);
 
@@ -136,6 +138,40 @@ export function QuestionBlock({
         />
       )}
 
+      {question.type === "ranking" && (
+        <RankingQuestion
+          question={question}
+          answer={answers[question.id]}
+          dict={dict}
+          lang={lang}
+          onAnswer={(val) => onAnswer(question.id, val)}
+        />
+      )}
+
+      {question.type === "forced_choice" && (
+        <ForcedChoiceQuestion
+          question={question}
+          answer={answers[question.id]}
+          dict={dict}
+          onAnswer={(val) => {
+            onAnswer(question.id, val);
+            setTimeout(goNext, 300);
+          }}
+        />
+      )}
+
+      {question.type === "mini_case" && (
+        <MiniCaseQuestion
+          question={question}
+          answer={answers[question.id]}
+          dict={dict}
+          onAnswer={(val) => {
+            onAnswer(question.id, val);
+            setTimeout(goNext, 300);
+          }}
+        />
+      )}
+
       {/* Navigation */}
       <div className="mt-8 flex items-center justify-between">
         <div className="w-14" />
@@ -173,6 +209,189 @@ export function QuestionBlock({
             {resolve(dict as unknown as Record<string, unknown>, "common.next")}
           </Button>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Ranking Question (SJT) ──────────────────────────────────────────
+
+function RankingQuestion({
+  question,
+  answer,
+  dict,
+  lang,
+  onAnswer,
+}: {
+  question: AssessmentQuestion;
+  answer?: AnswerValue;
+  dict: ReturnType<typeof getDictionary>;
+  lang: Lang;
+  onAnswer: (val: AnswerValue) => void;
+}) {
+  const selected = answer?.type === "ranking" ? answer.order : [];
+  const questionText = resolve(dict as unknown as Record<string, unknown>, question.textKey);
+
+  const toggle = (optId: string) => {
+    let next = selected.includes(optId)
+      ? selected.filter((x) => x !== optId)
+      : [...selected, optId];
+    // cap to all options; user can also deselect
+    if (next.length > question.options.length) next = next.slice(0, question.options.length);
+    if (next.length === question.options.length) {
+      onAnswer({ type: "ranking", order: next });
+    } else {
+      onAnswer({ type: "ranking", order: next });
+    }
+  };
+
+  const move = (idx: number, dir: -1 | 1) => {
+    const next = [...selected];
+    const j = idx + dir;
+    if (j < 0 || j >= next.length) return;
+    [next[idx], next[j]] = [next[j], next[idx]];
+    onAnswer({ type: "ranking", order: next });
+  };
+
+  return (
+    <div>
+      <h3 className="mb-2 text-lg font-semibold text-gray-900">{questionText}</h3>
+      <p className="mb-6 text-sm text-gray-500">
+        {lang === "ru"
+          ? "Выберите варианты в порядке от лучшего к худшему (1 — лучший, 4 — худший)."
+          : "Select options from best to worst (1 = best, 4 = worst)."}
+      </p>
+
+      <div className="space-y-2">
+        {question.options.map((opt) => {
+          const optText = resolve(dict as unknown as Record<string, unknown>, opt.textKey);
+          const rank = selected.indexOf(opt.id);
+          const isSelected = rank !== -1;
+          return (
+            <button
+              key={opt.id}
+              onClick={() => toggle(opt.id)}
+              className={cn(
+                "flex w-full items-center justify-between rounded-lg border p-4 text-left text-sm transition-all",
+                isSelected ? "border-zima-500 bg-zima-50" : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <span className={cn(
+                  "inline-flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold",
+                  isSelected ? "border-zima-600 bg-zima-600 text-white" : "border-gray-300 text-gray-400"
+                )}>
+                  {isSelected ? rank + 1 : "—"}
+                </span>
+                <span className="text-gray-800">{optText}</span>
+              </div>
+              {isSelected && (
+                <div className="flex items-center gap-2">
+                  <span
+                    className="rounded-md border px-2 py-1 text-xs text-gray-500 hover:bg-white"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); move(rank, -1); }}
+                  >
+                    ↑
+                  </span>
+                  <span
+                    className="rounded-md border px-2 py-1 text-xs text-gray-500 hover:bg-white"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); move(rank, 1); }}
+                  >
+                    ↓
+                  </span>
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Forced Choice ───────────────────────────────────────────────────
+
+function ForcedChoiceQuestion({
+  question,
+  answer,
+  dict,
+  onAnswer,
+}: {
+  question: AssessmentQuestion;
+  answer?: AnswerValue;
+  dict: ReturnType<typeof getDictionary>;
+  onAnswer: (val: AnswerValue) => void;
+}) {
+  const selected = answer?.type === "single" ? answer.value : "";
+  const questionText = resolve(dict as unknown as Record<string, unknown>, question.textKey);
+
+  return (
+    <div>
+      <h3 className="mb-6 text-lg font-semibold text-gray-900">{questionText}</h3>
+      <div className="space-y-3">
+        {question.options.map((opt) => {
+          const optText = resolve(dict as unknown as Record<string, unknown>, opt.textKey);
+          const isSelected = selected === opt.id;
+          return (
+            <button
+              key={opt.id}
+              onClick={() => onAnswer({ type: "single", value: opt.id })}
+              className={cn(
+                "w-full rounded-lg border p-4 text-left text-sm transition-all",
+                isSelected ? "border-zima-500 bg-zima-50 text-zima-800" : "border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+              )}
+            >
+              {optText}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Mini Case ───────────────────────────────────────────────────────
+
+function MiniCaseQuestion({
+  question,
+  answer,
+  dict,
+  onAnswer,
+}: {
+  question: AssessmentQuestion;
+  answer?: AnswerValue;
+  dict: ReturnType<typeof getDictionary>;
+  onAnswer: (val: AnswerValue) => void;
+}) {
+  const selected = answer?.type === "single" ? answer.value : "";
+  const questionText = resolve(dict as unknown as Record<string, unknown>, question.textKey);
+
+  return (
+    <div>
+      <h3 className="mb-6 text-lg font-semibold text-gray-900">{questionText}</h3>
+      <div className="space-y-2">
+        {question.options.map((opt) => {
+          const optText = resolve(dict as unknown as Record<string, unknown>, opt.textKey);
+          const isSelected = selected === opt.id;
+          return (
+            <button
+              key={opt.id}
+              onClick={() => onAnswer({ type: "single", value: opt.id })}
+              className={cn(
+                "w-full rounded-lg border p-4 text-left text-sm transition-all",
+                isSelected ? "border-zima-500 bg-zima-50 text-zima-800" : "border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+              )}
+            >
+              <span className={cn(
+                "mr-3 inline-flex h-6 w-6 items-center justify-center rounded-full border text-xs font-medium",
+                isSelected ? "border-zima-500 bg-zima-500 text-white" : "border-gray-300 text-gray-400"
+              )}>
+                {String(opt.id).toUpperCase()}
+              </span>
+              {optText}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
