@@ -17,6 +17,11 @@ export function CompletionScreen({ candidateName, lang }: CompletionScreenProps)
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-zima-50 to-white p-6">
       <div className="mx-auto max-w-lg animate-slide-up text-center">
+        <img
+          src="/ZIMA-logo.svg"
+          alt="ZIMA"
+          className="mx-auto mb-8 h-10 w-auto"
+        />
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
           <CheckCircle2 className="h-10 w-10 text-green-600" />
         </div>
